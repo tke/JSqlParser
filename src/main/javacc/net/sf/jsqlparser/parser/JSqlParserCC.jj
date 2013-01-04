@@ -26,7 +26,7 @@ options{
 //  DEBUG_LOOKAHEAD= true ;
 //  FORCE_LA_CHECK=true;
 //  DEBUG_TOKEN_MANAGER=true;
-//  UNICODE_INPUT=true;
+    UNICODE_INPUT=true;
 }
 
 PARSER_BEGIN(CCJSqlParser)
@@ -258,7 +258,7 @@ TOKEN:
 | 	< #LETTER: ["a"-"z", "A"-"Z", "_"] >
 |   < #SPECIAL_CHARS: "$" | "_">
 |   < S_CHAR_LITERAL: "'" (~["'"])* "'" ("'" (~["'"])* "'")*>
-|   < S_QUOTED_IDENTIFIER: "\"" (~["\n","\r","\""])* "\"" | ("`" (~["\n","\r","`"])* "`") | ("[" (~["\n","\r","]"])* "]") >
+|   < S_QUOTED_IDENTIFIER: ("\"" (~["\n","\r","\""])* "\"")* | ("`" (~["\n","\r","`"])* "`") | ("[" (~["\n","\r","]"])* "]") >
 
 /*
 To deal with database names (columns, tables) using not only latin base characters, one
