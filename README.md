@@ -8,7 +8,8 @@ Original project websites:
 * http://sourceforge.net/projects/jsqlparser/
 
 ## Extensions
-
+* Added support for escaping double quotes (double occurrence of double quotes is parsed as an escaped double quote) 
+* Enabled UNICODE support  
 * Changed project tests to junit 4
 * Changed project layout to maven project
 * Added regexp (REGEXP) operator
