@@ -1,6 +1,7 @@
 package net.sf.jsqlparser.test.select;
 
 import static java.lang.String.format;
+import static net.sf.jsqlparser.util.EscapingUtils.unescapeDoubleQuotes;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertThat;
@@ -8,7 +9,10 @@ import static org.junit.Assert.assertThat;
 import java.io.StringReader;
 
 import net.sf.jsqlparser.JSQLParserException;
+import net.sf.jsqlparser.expression.Expression;
+import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
 import net.sf.jsqlparser.parser.CCJSqlParserManager;
+import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.select.FromItem;
@@ -27,10 +31,10 @@ public class DoubleQuoteEscapingTest {
 	private final CCJSqlParserManager parserManager = new CCJSqlParserManager();
 
 	@DataPoints
-	public static final String[] STRINGS = new String[] { "bob", "\"Table\"",
-			"\"A Table with \"\" in its name\"",
-			"\"A Table with a lot of \"\"\"\"\"\"\"\"\"\"\"\" in its name\"",
-			"\"A Table with '\"" };
+	public static final String[] STRINGS = new String[] { "bob", "\"Name\"",
+			"\"A Name with \"\" in it\"",
+			"\"A Name with a lot of \"\"\"\"\"\"\"\"\"\"\"\" in it\"",
+			"\"A Name with '\"" };
 
 	@Theory
 	public void tableNamesBehaveWhenTheyContainEscapedDoubelQuotes(
@@ -45,7 +49,25 @@ public class DoubleQuoteEscapingTest {
 		FromItem fromItem = plainSelect.getFromItem();
 		assertThat(fromItem, instanceOf(Table.class));
 		Table table = (Table) fromItem;
-		assertThat(table.getName(), equalTo(tableName));
-		System.out.println(table.getName());
+		assertThat(table.getName(), equalTo(unescapeDoubleQuotes(tableName)));
+	}
+
+	@Theory
+	public void columnNamesBehaveWhenTheyContainEscapedDoubelQuotes(
+			String columnName) throws JSQLParserException {
+		String sql = format("SELECT * FROM BOB B WHERE %s = 'Bla'", columnName);
+		Statement parsed = parserManager.parse(new StringReader(sql));
+		assertThat(parsed, instanceOf(Select.class));
+		SelectBody selectBody = ((Select) parsed).getSelectBody();
+		assertThat(selectBody, instanceOf(PlainSelect.class));
+		PlainSelect plainSelect = (PlainSelect) selectBody;
+		Expression where = plainSelect.getWhere();
+		assertThat(where, instanceOf(EqualsTo.class));
+		EqualsTo equalsTo = (EqualsTo) where;
+		Expression leftExpression = equalsTo.getLeftExpression();
+		assertThat(leftExpression, instanceOf(Column.class));
+		Column column = (Column) leftExpression;
+		assertThat(column.getColumnName(),
+				equalTo(unescapeDoubleQuotes(columnName)));
 	}
 }
