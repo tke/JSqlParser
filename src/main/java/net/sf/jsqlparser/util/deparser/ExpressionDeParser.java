@@ -1,5 +1,8 @@
 package net.sf.jsqlparser.util.deparser;
 
+import static java.lang.String.format;
+import static net.sf.jsqlparser.util.EscapingUtils.escapeDoubleQuotes;
+
 import java.util.Iterator;
 
 import net.sf.jsqlparser.expression.AllComparisonExpression;
@@ -66,10 +69,12 @@ public class ExpressionDeParser implements ExpressionVisitor, ItemsListVisitor {
 	}
 
 	/**
-	 * @param selectVisitor a SelectVisitor to de-parse SubSelects. It has to
-	 * share the same<br> StringBuilder as this object in order to work, as:
-	 *
-	 * <pre>
+	 * @param selectVisitor
+	 *            a SelectVisitor to de-parse SubSelects. It has to share the
+	 *            same<br>
+	 *            StringBuilder as this object in order to work, as:
+	 * 
+	 *            <pre>
 	 * <code>
 	 * StringBuilder myBuf = new StringBuilder();
 	 * MySelectDeparser selectDeparser = new  MySelectDeparser();
@@ -77,7 +82,8 @@ public class ExpressionDeParser implements ExpressionVisitor, ItemsListVisitor {
 	 * ExpressionDeParser expressionDeParser = new ExpressionDeParser(selectDeparser, myBuf);
 	 * </code>
 	 * </pre>
-	 * @param buffer the buffer that will be filled with the expression
+	 * @param buffer
+	 *            the buffer that will be filled with the expression
 	 */
 	public ExpressionDeParser(SelectVisitor selectVisitor, StringBuilder buffer) {
 		this.selectVisitor = selectVisitor;
@@ -274,7 +280,8 @@ public class ExpressionDeParser implements ExpressionVisitor, ItemsListVisitor {
 
 	}
 
-	private void visitBinaryExpression(BinaryExpression binaryExpression, String operator) {
+	private void visitBinaryExpression(BinaryExpression binaryExpression,
+			String operator) {
 		if (binaryExpression.isNot()) {
 			buffer.append(" NOT ");
 		}
@@ -300,8 +307,14 @@ public class ExpressionDeParser implements ExpressionVisitor, ItemsListVisitor {
 		if (tableName != null) {
 			buffer.append(tableName).append(".");
 		}
+		buffer.append(escapeName(tableColumn.getColumnName()));
+	}
 
-		buffer.append(tableColumn.getColumnName());
+	public static String escapeName(String name) {
+
+		return isQuoted(name) ? format("\"%s\"",
+				escapeDoubleQuotes(name.substring(1, name.length() - 1)))
+				: escapeDoubleQuotes(name);
 	}
 
 	@Override
@@ -339,7 +352,8 @@ public class ExpressionDeParser implements ExpressionVisitor, ItemsListVisitor {
 		if (useBracketsInExprList) {
 			buffer.append("(");
 		}
-		for (Iterator<Expression> iter = expressionList.getExpressions().iterator(); iter.hasNext();) {
+		for (Iterator<Expression> iter = expressionList.getExpressions()
+				.iterator(); iter.hasNext();) {
 			Expression expression = (Expression) iter.next();
 			expression.accept(this);
 			if (iter.hasNext()) {
@@ -361,17 +375,20 @@ public class ExpressionDeParser implements ExpressionVisitor, ItemsListVisitor {
 
 	@Override
 	public void visit(DateValue dateValue) {
-		buffer.append("{d '").append(dateValue.getValue().toString()).append("'}");
+		buffer.append("{d '").append(dateValue.getValue().toString())
+				.append("'}");
 	}
 
 	@Override
 	public void visit(TimestampValue timestampValue) {
-		buffer.append("{ts '").append(timestampValue.getValue().toString()).append("'}");
+		buffer.append("{ts '").append(timestampValue.getValue().toString())
+				.append("'}");
 	}
 
 	@Override
 	public void visit(TimeValue timeValue) {
-		buffer.append("{t '").append(timeValue.getValue().toString()).append("'}");
+		buffer.append("{t '").append(timeValue.getValue().toString())
+				.append("'}");
 	}
 
 	@Override
@@ -383,7 +400,8 @@ public class ExpressionDeParser implements ExpressionVisitor, ItemsListVisitor {
 			buffer.append(" ");
 		}
 
-		for (Iterator<Expression> iter = caseExpression.getWhenClauses().iterator(); iter.hasNext();) {
+		for (Iterator<Expression> iter = caseExpression.getWhenClauses()
+				.iterator(); iter.hasNext();) {
 			Expression exp = (Expression) iter.next();
 			exp.accept(this);
 		}
@@ -466,5 +484,10 @@ public class ExpressionDeParser implements ExpressionVisitor, ItemsListVisitor {
 	@Override
 	public void visit(ExtractExpression eexpr) {
 		buffer.append(eexpr.toString());
+	}
+
+	static boolean isQuoted(String string) {
+		return string != null && string.startsWith("\"")
+				&& string.endsWith("\"");
 	}
 }

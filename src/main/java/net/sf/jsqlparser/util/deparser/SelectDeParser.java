@@ -1,5 +1,8 @@
 package net.sf.jsqlparser.util.deparser;
 
+import static net.sf.jsqlparser.util.EscapingUtils.escapeDoubleQuotes;
+import static net.sf.jsqlparser.util.deparser.ExpressionDeParser.escapeName;
+
 import java.util.Iterator;
 import java.util.List;
 
@@ -26,10 +29,11 @@ import net.sf.jsqlparser.statement.select.SubSelect;
 import net.sf.jsqlparser.statement.select.Top;
 
 /**
- * A class to de-parse (that is, tranform from JSqlParser hierarchy into a string) a
- * {@link net.sf.jsqlparser.statement.select.Select}
+ * A class to de-parse (that is, tranform from JSqlParser hierarchy into a
+ * string) a {@link net.sf.jsqlparser.statement.select.Select}
  */
-public class SelectDeParser implements SelectVisitor, OrderByVisitor, SelectItemVisitor, FromItemVisitor {
+public class SelectDeParser implements SelectVisitor, OrderByVisitor,
+		SelectItemVisitor, FromItemVisitor {
 	protected StringBuilder buffer;
 	protected ExpressionVisitor expressionVisitor;
 
@@ -38,12 +42,15 @@ public class SelectDeParser implements SelectVisitor, OrderByVisitor, SelectItem
 
 	/**
 	 * @param expressionVisitor
-	 *            a {@link ExpressionVisitor} to de-parse expressions. It has to share the same<br>
-	 *            StringBuilder (buffer parameter) as this object in order to work
+	 *            a {@link ExpressionVisitor} to de-parse expressions. It has to
+	 *            share the same<br>
+	 *            StringBuilder (buffer parameter) as this object in order to
+	 *            work
 	 * @param buffer
 	 *            the buffer that will be filled with the select
 	 */
-	public SelectDeParser(ExpressionVisitor expressionVisitor, StringBuilder buffer) {
+	public SelectDeParser(ExpressionVisitor expressionVisitor,
+			StringBuilder buffer) {
 		this.buffer = buffer;
 		this.expressionVisitor = expressionVisitor;
 	}
@@ -59,7 +66,8 @@ public class SelectDeParser implements SelectVisitor, OrderByVisitor, SelectItem
 			buffer.append("DISTINCT ");
 			if (plainSelect.getDistinct().getOnSelectItems() != null) {
 				buffer.append("ON (");
-				for (Iterator<SelectItem> iter = plainSelect.getDistinct().getOnSelectItems().iterator(); iter.hasNext();) {
+				for (Iterator<SelectItem> iter = plainSelect.getDistinct()
+						.getOnSelectItems().iterator(); iter.hasNext();) {
 					SelectItem selectItem = iter.next();
 					selectItem.accept(this);
 					if (iter.hasNext()) {
@@ -71,7 +79,8 @@ public class SelectDeParser implements SelectVisitor, OrderByVisitor, SelectItem
 
 		}
 
-		for (Iterator<SelectItem> iter = plainSelect.getSelectItems().iterator(); iter.hasNext();) {
+		for (Iterator<SelectItem> iter = plainSelect.getSelectItems()
+				.iterator(); iter.hasNext();) {
 			SelectItem selectItem = iter.next();
 			selectItem.accept(this);
 			if (iter.hasNext()) {
@@ -85,7 +94,8 @@ public class SelectDeParser implements SelectVisitor, OrderByVisitor, SelectItem
 		}
 
 		if (plainSelect.getJoins() != null) {
-			for (Iterator<Join> iter = plainSelect.getJoins().iterator(); iter.hasNext();) {
+			for (Iterator<Join> iter = plainSelect.getJoins().iterator(); iter
+					.hasNext();) {
 				Join join = iter.next();
 				deparseJoin(join);
 			}
@@ -98,7 +108,8 @@ public class SelectDeParser implements SelectVisitor, OrderByVisitor, SelectItem
 
 		if (plainSelect.getGroupByColumnReferences() != null) {
 			buffer.append(" GROUP BY ");
-			for (Iterator<Expression> iter = plainSelect.getGroupByColumnReferences().iterator(); iter.hasNext();) {
+			for (Iterator<Expression> iter = plainSelect
+					.getGroupByColumnReferences().iterator(); iter.hasNext();) {
 				Expression columnReference = iter.next();
 				columnReference.accept(expressionVisitor);
 				if (iter.hasNext()) {
@@ -131,7 +142,7 @@ public class SelectDeParser implements SelectVisitor, OrderByVisitor, SelectItem
 	}
 
 	public void visit(Column column) {
-		buffer.append(column.getWholeColumnName());
+		buffer.append(escapeDoubleQuotes(column.getWholeColumnName()));
 	}
 
 	@Override
@@ -141,7 +152,8 @@ public class SelectDeParser implements SelectVisitor, OrderByVisitor, SelectItem
 
 	@Override
 	public void visit(AllTableColumns allTableColumns) {
-		buffer.append(allTableColumns.getTable().getWholeTableName()).append(".*");
+		buffer.append(allTableColumns.getTable().getWholeTableName()).append(
+				".*");
 	}
 
 	@Override
@@ -166,7 +178,8 @@ public class SelectDeParser implements SelectVisitor, OrderByVisitor, SelectItem
 
 	@Override
 	public void visit(Table tableName) {
-		buffer.append(tableName.getWholeTableName());
+		buffer.append(escapeName((tableName
+				.getWholeTableName())));
 		String alias = tableName.getAlias();
 		if (alias != null && !alias.isEmpty()) {
 			buffer.append(" AS ").append(alias);
@@ -175,7 +188,8 @@ public class SelectDeParser implements SelectVisitor, OrderByVisitor, SelectItem
 
 	public void deparseOrderBy(List<OrderByElement> orderByElements) {
 		buffer.append(" ORDER BY ");
-		for (Iterator<OrderByElement> iter = orderByElements.iterator(); iter.hasNext();) {
+		for (Iterator<OrderByElement> iter = orderByElements.iterator(); iter
+				.hasNext();) {
 			OrderByElement orderByElement = iter.next();
 			orderByElement.accept(this);
 			if (iter.hasNext()) {
@@ -229,26 +243,21 @@ public class SelectDeParser implements SelectVisitor, OrderByVisitor, SelectItem
 	public void deparseJoin(Join join) {
 		if (join.isSimple()) {
 			buffer.append(", ");
-		}
-		else {
+		} else {
 
 			if (join.isRight()) {
 				buffer.append(" RIGHT");
-			}
-			else if (join.isNatural()) {
+			} else if (join.isNatural()) {
 				buffer.append(" NATURAL");
-			}
-			else if (join.isFull()) {
+			} else if (join.isFull()) {
 				buffer.append(" FULL");
-			}
-			else if (join.isLeft()) {
+			} else if (join.isLeft()) {
 				buffer.append(" LEFT");
 			}
 
 			if (join.isOuter()) {
 				buffer.append(" OUTER");
-			}
-			else if (join.isInner()) {
+			} else if (join.isInner()) {
 				buffer.append(" INNER");
 			}
 
@@ -264,7 +273,8 @@ public class SelectDeParser implements SelectVisitor, OrderByVisitor, SelectItem
 		}
 		if (join.getUsingColumns() != null) {
 			buffer.append(" USING (");
-			for (Iterator<Column> iterator = join.getUsingColumns().iterator(); iterator.hasNext();) {
+			for (Iterator<Column> iterator = join.getUsingColumns().iterator(); iterator
+					.hasNext();) {
 				Column column = iterator.next();
 				buffer.append(column.getWholeColumnName());
 				if (iterator.hasNext()) {
@@ -278,12 +288,14 @@ public class SelectDeParser implements SelectVisitor, OrderByVisitor, SelectItem
 
 	@Override
 	public void visit(SetOperationList list) {
-		for (int i=0;i<list.getPlainSelects().size();i++) {
-			if (i!=0) {
-				buffer.append(' ').append(list.getOperations().get(i-1)).append(' ');
+		for (int i = 0; i < list.getPlainSelects().size(); i++) {
+			if (i != 0) {
+				buffer.append(' ').append(list.getOperations().get(i - 1))
+						.append(' ');
 			}
 			buffer.append("(");
-			PlainSelect plainSelect = (PlainSelect) list.getPlainSelects().get(i);
+			PlainSelect plainSelect = (PlainSelect) list.getPlainSelects().get(
+					i);
 			plainSelect.accept(this);
 			buffer.append(")");
 		}
