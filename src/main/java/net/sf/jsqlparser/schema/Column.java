@@ -22,6 +22,7 @@
 
 package net.sf.jsqlparser.schema;
 
+import static net.sf.jsqlparser.util.Escapings.UNESCAPE_DOUBLE_QUOTES;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.ExpressionVisitor;
 
@@ -82,5 +83,13 @@ public class Column implements Expression {
 	@Override
 	public String toString() {
 		return getWholeColumnName();
+	}
+
+	public String getUnescapedWholeColumnName() {
+		return UNESCAPE_DOUBLE_QUOTES.apply(getWholeColumnName());
+	}
+
+	public String getUnescapedColumnName() {
+		return UNESCAPE_DOUBLE_QUOTES.apply(getColumnName());
 	}
 }

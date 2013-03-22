@@ -1,8 +1,5 @@
 package net.sf.jsqlparser.util.deparser;
 
-import static net.sf.jsqlparser.util.EscapingUtils.escapeDoubleQuotes;
-import static net.sf.jsqlparser.util.deparser.ExpressionDeParser.escapeName;
-
 import java.util.Iterator;
 import java.util.List;
 
@@ -142,7 +139,7 @@ public class SelectDeParser implements SelectVisitor, OrderByVisitor,
 	}
 
 	public void visit(Column column) {
-		buffer.append(escapeDoubleQuotes(column.getWholeColumnName()));
+		buffer.append(column.getWholeColumnName());
 	}
 
 	@Override
@@ -178,8 +175,8 @@ public class SelectDeParser implements SelectVisitor, OrderByVisitor,
 
 	@Override
 	public void visit(Table tableName) {
-		buffer.append(escapeName((tableName
-				.getWholeTableName())));
+		buffer.append((tableName
+				.getWholeTableName()));
 		String alias = tableName.getAlias();
 		if (alias != null && !alias.isEmpty()) {
 			buffer.append(" AS ").append(alias);

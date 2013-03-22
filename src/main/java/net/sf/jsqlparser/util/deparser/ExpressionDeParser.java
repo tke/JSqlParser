@@ -1,8 +1,5 @@
 package net.sf.jsqlparser.util.deparser;
 
-import static java.lang.String.format;
-import static net.sf.jsqlparser.util.EscapingUtils.escapeDoubleQuotes;
-
 import java.util.Iterator;
 
 import net.sf.jsqlparser.expression.AllComparisonExpression;
@@ -307,15 +304,10 @@ public class ExpressionDeParser implements ExpressionVisitor, ItemsListVisitor {
 		if (tableName != null) {
 			buffer.append(tableName).append(".");
 		}
-		buffer.append(escapeName(tableColumn.getColumnName()));
+		buffer.append(tableColumn.getColumnName());
 	}
 
-	public static String escapeName(String name) {
 
-		return isQuoted(name) ? format("\"%s\"",
-				escapeDoubleQuotes(name.substring(1, name.length() - 1)))
-				: escapeDoubleQuotes(name);
-	}
 
 	@Override
 	public void visit(Function function) {

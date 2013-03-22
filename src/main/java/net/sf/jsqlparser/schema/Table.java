@@ -22,6 +22,7 @@
 
 package net.sf.jsqlparser.schema;
 
+import static net.sf.jsqlparser.util.Escapings.UNESCAPE_DOUBLE_QUOTES;
 import net.sf.jsqlparser.statement.select.FromItem;
 import net.sf.jsqlparser.statement.select.FromItemVisitor;
 import net.sf.jsqlparser.statement.select.IntoTableVisitor;
@@ -96,5 +97,13 @@ public class Table implements FromItem {
 	@Override
 	public String toString() {
 		return getWholeTableName() + ((alias != null) ? " AS " + alias : "");
+	}
+
+	public String getUnescapedWholeTableName() {
+		return UNESCAPE_DOUBLE_QUOTES.apply(getWholeTableName());
+	}
+
+	public String getUnescapedTableName() {
+		return UNESCAPE_DOUBLE_QUOTES.apply(this.name);
 	}
 }
