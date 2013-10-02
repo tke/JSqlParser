@@ -1,9 +1,8 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.idbs</groupId>
 	<artifactId>jsqlparser</artifactId>
-	<version>0.8.2-SNAPSHOT</version>
+	<version>0.8.2</version>
 	<name>clone of the jsqlparser library</name>
 	<dependencies>
 		<dependency>
@@ -33,7 +32,8 @@
 	
 	<scm>
 		<developerConnection>scm:git:https://github.com/tke/JSqlParser.git</developerConnection>
-	</scm>
+	  <tag>jsqlparser-0.8.2</tag>
+  </scm>
 
 	<build>
 		<plugins>
@@ -107,7 +107,7 @@
 										</goals>
 									</pluginExecutionFilter>
 									<action>
-										<ignore></ignore>
+										<ignore />
 									</action>
 								</pluginExecution>
 							</pluginExecutions>
