@@ -21,10 +21,19 @@
 	<distributionManagement>
 		<repository>
 			<id>nexus</id>
+			<name>idbs-releases</name>
+			<url>http://30maven1.idbs.co.uk/content/repositories/releases</url>
+		</repository>
+		<snapshotRepository>
+			<id>nexus</id>
 			<name>idbs-snapshots</name>
 			<url>http://30maven1.idbs.co.uk/content/repositories/snapshots</url>
-		</repository>
+		</snapshotRepository>
 	</distributionManagement>
+	
+	<scm>
+		<developerConnection>scm:git:https://github.com/tke/JSqlParser.git</developerConnection>
+	</scm>
 
 	<build>
 		<plugins>
